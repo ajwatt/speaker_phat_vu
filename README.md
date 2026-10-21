@@ -6,35 +6,26 @@ LEDs over I2C. It does not modify audio routing or install software on the host.
 No microphone is needed. Samples are processed in memory and discarded.
 
 ## Enable I2C
-
-Keep the working `dtoverlay=hifiberry-dac` setting. In the boot partition's
-`config.txt`, add the following under an applicable `[all]` section:
+In the boot partition's `config.txt` (usually `/mnt/boot/config.txt`), add the following under an applicable `[all]` section:
 
 ```ini
-dtparam=i2c_arm=on
+dtoverlay=hifiberry-dac    # Enables Pimoroni Speaker PHAT sound
+dtparam=i2c_arm=on         # Enables Pimoroni Speaker PHAT VU meter
 ```
 
-Load `i2c-dev` at boot using the documented HAOS CONFIG USB mechanism:
+Also enable the i2c-dev module:
+```
+mkdir -p /etc/modules-load.d
+printf 'i2c-dev\n' > /etc/modules-load.d/rpi-i2c.conf
+modprobe i2c-dev
+```
 
-1. On a USB drive labeled `CONFIG`, create `modules/rpi-i2c.conf` containing
-   just `i2c-dev` followed by a newline.
-2. Connect it to HAOS, run `ha os import`, then reboot the host.
-3. From the actual host shell, verify `ls -l /dev/i2c-1`.
-
-The local HA console's `login` command enters the host shell. A normal terminal
-add-on has its own device namespace and may not show the host's I2C device.
-
-Reference: https://contributors.home-assistant.io/os/operating-system/raspberry-pi/
+Reboot the system. When it comes back online, use `ls -l /dev/i2c-1` to confirm the appearance of the new device.
 
 ## Install
 
-1. Copy the entire `speaker_phat_vu` folder to HA's local add-ons directory,
-   commonly `/addons` in a terminal add-on or the `addons` Samba share.
-   The resulting path in that share must be `speaker_phat_vu/config.yaml`.
-   Do not place it in Home Assistant's `/config` folder.
-2. Reload/check for updates in the app/add-on store. Open **Speaker pHAT VU
-   Meter** under **Local apps/add-ons** and install it. Supervisor builds the
-   container on the Pi; internet access is needed to fetch its base and packages.
+1. Navigate to the Home Assistant settings, Apps section, and from the upper right `⋮` menu, Repositories.
+2. Back in the apps listing, the VU meter app should be listed. Install it via the normal way.
 3. Start the add-on and inspect its log. The LEDs should briefly chase once.
 4. Play audio. Initially the meter monitors the default PulseAudio output.
 5. If the pHAT is not the default output, copy its exact source name ending in
