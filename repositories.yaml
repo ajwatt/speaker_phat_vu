@@ -1,0 +1,4 @@
+# https://developers.home-assistant.io/docs/add-ons/repository#repository-configuration
+name: Ajwatt Home Assistant app for Pimoroni Speaker pHAT VU meter
+url: 'https://github.com/ajwatt/speaker_phat_vu.git'
+maintainer: AJ Watt <awesome@example.com>
