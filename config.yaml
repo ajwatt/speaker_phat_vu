@@ -1,0 +1,28 @@
+name: Speaker pHAT VU Meter
+version: "0.1.0"
+slug: speaker_phat_vu
+description: Display PulseAudio playback levels on Speaker pHAT LEDs
+arch:
+  - aarch64
+  - armv7
+startup: application
+boot: auto
+init: true
+stage: experimental
+audio: true
+devices:
+  - /dev/i2c-1
+options:
+  source: "@DEFAULT_MONITOR@"
+  brightness: 32
+  floor_db: -48
+  gain_db: 0
+  reverse: false
+  startup_test: true
+schema:
+  source: str
+  brightness: int(1,255)
+  floor_db: int(-90,-6)
+  gain_db: int(-30,30)
+  reverse: bool
+  startup_test: bool
