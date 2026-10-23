@@ -59,21 +59,35 @@ and its audio configuration before changing anything.
   `i2c-dev`; reboot and check `/dev/i2c-1` from the host shell.
 - **I2C error / remote I/O error:** check pHAT seating and that no other process
   controls its SN3218 at address `0x54`. Stop other LED services before starting.
+  An error on the first register write occurs before audio capture starts.
+  The existence of `/dev/i2c-1` confirms an adapter, not a responding LED chip.
+  From the host shell, inspect:
+
+  ```sh
+  for adapter in /sys/class/i2c-dev/i2c-*; do
+      printf '%s: ' "$adapter"
+      cat "$adapter/name"
+  done
+  dmesg | grep -Ei 'i2c|bcm2835|timeout'
+  ```
+
+  If `i2cdetect` is already available on the host, with the VU add-on stopped,
+  probe only the expected address using `i2cdetect -y -q 1 0x54 0x54`.
+  `54` means the chip acknowledged that probe; `--` means it did not, or the
+  probe failed. `UU` means the address is claimed by a kernel driver. Do not use
+  force flags. Check/reseat the board only after shutdown and disconnecting power.
 - **Startup chase works, but no meter:** inspect available sources in the log
   and select the pHAT's `.monitor`; confirm playback uses PulseAudio.
 - **PulseAudio connection errors:** verify the HA audio service is running
   with `ha audio info` and `ha audio logs`. The add-on retries automatically.
 - **Wrong direction or sensitivity:** adjust `reverse`, `gain_db`, or `floor_db`.
 
+## Uninstalling
+
 Stop the add-on to clear the LEDs; uninstall it to remove its software. The I2C
 boot setting may remain if other devices use it.
 
-## Validation and references
-
-Not yet tested on a physical Speaker pHAT or built under HAOS. Local checks cover
-PCM level calculation, bar thresholds, channel mapping, I2C register writes with
-a fake bus, and monitor subprocess behavior. Hardware and Supervisor validation
-remain necessary.
+## References
 
 - HA add-on configuration: https://contributors.home-assistant.io/apps/reference/configuration/
 - HA audio: https://github.com/home-assistant/plugin-audio
